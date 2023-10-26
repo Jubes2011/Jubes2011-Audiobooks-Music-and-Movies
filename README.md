@@ -1,250 +1,174 @@
-# API
+# EPG
 
-## Overview
+Tools for downloading the EPG (Electronic Program Guide) for thousands of TV channels from hundreds of sources.
 
-- [Channels](#channels)
-- [Streams](#streams)
-- [Categories](#categories)
-- [Languages](#languages)
-- [Countries](#countries)
-- [Subdivisions](#subdivisions)
-- [Regions](#regions)
-- [Blocklist](#blocklist)
+## Table of contents
 
-### Channels
+- ✨ [Installation](#installation)
+- 🚀 [Usage](#usage)
+- 💫 [Update](#update)
+- 📺 [Playlists](#playlists)
+- 🗄 [Database](#database)
+- 👨‍💻 [API](#api)
+- 📚 [Resources](#resources)
+- 💬 [Discussions](#discussions)
+- 🛠 [Contribution](#contribution)
+- 📄 [License](#license)
 
-```
-https://iptv-org.github.io/api/channels.json
-```
+## Installation
 
-```jsonc
-[
-  //...
-  {
-    "id": "AnhuiTV.cn",
-    "name": "Anhui TV",
-    "alt_names": ["安徽卫视"],
-    "network": "Anhui",
-    "owners": ["China Central Television"],
-    "country": "CN",
-    "subdivision": "CN-AH",
-    "city": "Hefei",
-    "broadcast_area": ["s/CN-AH"],
-    "languages": ["zho"],
-    "categories": ["general"],
-    "is_nsfw": false,
-    "launched": "2016-07-28",
-    "closed": "2020-05-31",
-    "replaced_by": "CCTV1.cn",
-    "website": "http://www.ahtv.cn/",
-    "logo": "https://example.com/logo.png"
-  }
-  //...
-]
+First, you need to install [Node.js](https://nodejs.org/en) on your computer. You will also need to install [Git](https://git-scm.com/downloads) to follow these instructions.
+
+After that open the [Console](https://en.wikipedia.org/wiki/Windows_Console) (or [Terminal](<https://en.wikipedia.org/wiki/Terminal_(macOS)>) if you have macOS) and type the following command:
+
+```sh
+git clone --depth 1 -b master https://github.com/iptv-org/epg.git
 ```
 
-| Field          | Type           | Description                                                                                                                                          |
-| -------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| id             | string         | Unique channel ID                                                                                                                                    |
-| name           | string         | Full name of the channel                                                                                                                             |
-| alt_names      | array          | List of alternative channel names                                                                                                                    |
-| network        | string or null | Name of the network operating the channel                                                                                                            |
-| owners         | array          | List of channel owners                                                                                                                               |
-| country        | string         | Country code from which the broadcast is transmitted ([ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2))                        |
-| subdivision    | string or null | Code of the subdivision (e.g., provinces or states) from which the broadcast is transmitted ([ISO 3166-2](https://en.wikipedia.org/wiki/ISO_3166-2)) |
-| city           | string or null | Name of the city from which the broadcast is transmitted                                                                                             |
-| broadcast_area | array          | List of codes describing the broadcasting area (`r/<region_code>`, `c/<country_code>`, `s/<subdivision_code>`)                                       |
-| languages      | array          | List of languages broadcast                                                                                                                          |
-| categories     | array          | List of categories to which this channel belongs                                                                                                     |
-| is_nsfw        | boolean        | Indicates whether the channel broadcasts adult content                                                                                               |
-| launched       | string or null | Launch date of the channel (`YYYY-MM-DD`)                                                                                                            |
-| closed         | string or null | Date on which the channel closed (`YYYY-MM-DD`)                                                                                                      |
-| replaced_by    | string or null | The ID of the channel that this channel was replaced by                                                                                              |
-| website        | string or null | Official website URL                                                                                                                                 |
-| logo           | string         | Logo URL                                                                                                                                             |
+Then navigate to the downloaded `epg` folder:
 
-Source of data: https://github.com/iptv-org/database
-
-### Streams
-
-```
-https://iptv-org.github.io/api/streams.json
+```sh
+cd epg
 ```
 
-```jsonc
-[
-  //...
-  {
-    "channel": "BBCNews.uk",
-    "url": "http://1111296894.rsc.cdn77.org/LS-ATL-54548-6/index.m3u8",
-    "http_referrer": "http://example.com/",
-    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-  }
-  //...
-]
+And install all the dependencies:
+
+```sh
+npm install
 ```
 
-| Field         | Type           | Description                                                                                                          |
-| ------------- | -------------- | -------------------------------------------------------------------------------------------------------------------- |
-| channel       | string         | Channel ID                                                                                                           |
-| url           | string         | Stream URL                                                                                                           |
-| http_referrer | string or null | The [Referer](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referer) request header for the stream       |
-| user_agent    | string or null | The [User-Agent](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent) request header for the stream |
+## Usage
 
-Source of data: https://github.com/iptv-org/iptv
+To start the download of the guide, select one of the [supported sites](SITES.md) and paste its name into the command below:
 
-### Categories
-
-```
-https://iptv-org.github.io/api/categories.json
+```sh
+npm run grab -- --site=example.com
 ```
 
-```jsonc
-[
-  //...
-  {
-    "id": "documentary",
-    "name": "Documentary"
-  }
-  //...
-]
+And once the download is complete, the guide will be saved to the `guide.xml` file.
+
+```sh
+Usage: npm run grab -- [options]
+
+Options:
+  -s, --site <name>             Name of the site to parse
+  -c, --channels <path>         Path to *.channels.xml file (required if the "--site" attribute is
+                                not specified)
+  -o, --output <path>           Path to output file (default: "guide.xml")
+  -l, --lang <code>             Filter channels by language (ISO 639-2 code)
+  -t, --timeout <milliseconds>  Override the default timeout for each request
+  -d, --delay <milliseconds>    Override the default delay between request
+  --days <days>                 Override the number of days for which the program will be loaded
+                                (defaults to the value from the site config)
+  --maxConnections <number>     Limit on the number of concurrent requests (default: 1)
+  --cron <expression>           Schedule a script run (example: "0 0 * * *")
+  --gzip                        Create a compressed version of the guide as well (default: false)
 ```
 
-| Field | Type   | Description          |
-| ----- | ------ | -------------------- |
-| id    | string | Category ID          |
-| name  | string | Name of the category |
+### Access the guide by URL
 
-Source of data: https://github.com/iptv-org/database
+You can make the guide available via URL by running your own server:
 
-### Languages
-
-```
-https://iptv-org.github.io/api/languages.json
+```sh
+npm run serve
 ```
 
-```jsonc
-[
-  //...
-  {
-    "name": "French",
-    "code": "fra"
-  }
-  //...
-]
-```
-
-| Field | Type   | Description                                                               |
-| ----- | ------ | ------------------------------------------------------------------------- |
-| name  | string | Language name                                                             |
-| code  | string | [ISO 639-3](https://en.wikipedia.org/wiki/ISO_639-3) code of the language |
-
-Source of data: https://github.com/iptv-org/database
-
-### Countries
+After that, the guide will be available at the link:
 
 ```
-https://iptv-org.github.io/api/countries.json
+http://localhost:3000/guide.xml
 ```
 
-```jsonc
-[
-  //...
-  {
-    "name": "Canada",
-    "code": "CA",
-    "languages": ["eng", "fra"],
-    "flag": "🇨🇦"
-  }
-  //...
-]
-```
-
-| Field     | Type   | Description                                                                                           |
-| --------- | ------ | ----------------------------------------------------------------------------------------------------- |
-| name      | string | Name of the country                                                                                   |
-| code      | string | [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) code of the country            |
-| languages | array  | List of official languages of the country ([ISO 639-3](https://en.wikipedia.org/wiki/ISO_639-3) code) |
-| flag      | string | Country flag emoji                                                                                    |
-
-Source of data: https://github.com/iptv-org/database
-
-### Subdivisions
+In addition it will be available to other devices on the same local network at the address:
 
 ```
-https://iptv-org.github.io/api/subdivisions.json
+http://<your_local_ip_address>:3000/guide.xml
 ```
 
-```jsonc
-[
-  //...
-  {
-    "country": "CA",
-    "name": "Ontario",
-    "code": "CA-ON"
-  }
-  //...
-]
+### Parallel downloading
+
+By default, the guide for each channel is downloaded one by one, but you can change this behavior by increasing the number of simultaneous requests using the `--maxConnections` attribute:
+
+```sh
+npm run grab -- --site=example.com --maxConnections=10
 ```
 
-| Field   | Type   | Description                                                                                |
-| ------- | ------ | ------------------------------------------------------------------------------------------ |
-| country | string | [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) code of the country |
-| name    | string | Subdivision name                                                                           |
-| code    | string | [ISO 3166-2](https://en.wikipedia.org/wiki/ISO_3166-2) code of the subdivision             |
+But be aware that under heavy load, some sites may start return an error or completely block your access.
 
-Source of data: https://github.com/iptv-org/database
+### Use custom channel list
 
-### Regions
+Create an XML file and copy the descriptions of all the channels you need from the [/sites](sites) into it:
 
-```
-https://iptv-org.github.io/api/regions.json
-```
-
-```jsonc
-[
-  //...
-  {
-    "code": "MAGHREB",
-    "name": "Maghreb",
-    "countries": ["DZ", "LY", "MA", "MR", "TN"]
-  }
-  //...
-]
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<channels>
+  <channel site="arirang.com" lang="en" xmltv_id="ArirangTV.kr" site_id="CH_K">Arirang TV</channel>
+  ...
+</channels>
 ```
 
-| Field     | Type   | Description                     |
-| --------- | ------ | ------------------------------- |
-| code      | string | Code of the region              |
-| name      | string | Full name of the region         |
-| countries | array  | List of countries in the region |
+And then specify the path to that file via the `--channels` attribute:
 
-Source of data: https://github.com/iptv-org/database
-
-### Blocklist
-
-```
-https://iptv-org.github.io/api/blocklist.json
+```sh
+npm run grab -- --channels=path/to/custom.channels.xml
 ```
 
-```jsonc
-[
-  //...
-  {
-    "channel": "AnimalPlanetEast.us",
-    "ref": "https://github.com/iptv-org/iptv/issues/1831"
-  }
-  //...
-]
+### Run on schedule
+
+If you want to download the guide automatically on a schedule, you need to pass a valid [cron expression](https://crontab.guru/) to the script using the `--cron` attribute:
+
+```sh
+npm run grab -- --site=example.com --cron="0 0 * * *"
 ```
 
-| Field   | Type   | Description                                     |
-| ------- | ------ | ----------------------------------------------- |
-| channel | string | Channel ID                                      |
-| ref     | string | Link to removal request or DMCA takedown notice |
+## Update
 
-Source of data: https://github.com/iptv-org/database
+If you have downloaded the repository code according to the instructions above, then to update it will be enough to run the command:
+
+```sh
+git pull
+```
+
+And then update all the dependencies:
+
+```sh
+npm install
+```
+
+## Playlists
+
+Playlists with already linked guides can be found in the [iptv-org/iptv](https://github.com/iptv-org/iptv) repository.
+
+## Database
+
+All channel data is taken from the [iptv-org/database](https://github.com/iptv-org/database) repository. If you find any errors please open a new [issue](https://github.com/iptv-org/database/issues) there.
+
+## API
+
+The API documentation can be found in the [iptv-org/api](https://github.com/iptv-org/api) repository.
+
+## Resources
+
+Links to other useful IPTV-related resources can be found in the [iptv-org/awesome-iptv](https://github.com/iptv-org/awesome-iptv) repository.
+
+## Discussions
+
+If you have a question or an idea, you can post it in the [Discussions](https://github.com/orgs/iptv-org/discussions) tab.
 
 ## Contribution
 
-If you find a bug or want to contribute to the code or documentation, you can help by submitting an [issue](https://github.com/iptv-org/api/issues) or a [pull request](https://github.com/iptv-org/api/pulls).
+Please make sure to read the [Contributing Guide](https://github.com/iptv-org/epg/blob/master/CONTRIBUTING.md) before sending [issue](https://github.com/iptv-org/epg/issues) or a [pull request](https://github.com/iptv-org/epg/pulls).
+
+And thank you to everyone who has already contributed!
+
+### Backers
+
+<a href="https://opencollective.com/iptv-org"><img src="https://opencollective.com/iptv-org/backers.svg?width=890" /></a>
+
+### Contributors
+
+<a href="https://github.com/iptv-org/epg/graphs/contributors"><img src="https://opencollective.com/iptv-org/contributors.svg?width=890" /></a>
+
+## License
+
+[![CC0](http://mirrors.creativecommons.org/presskit/buttons/88x31/svg/cc-zero.svg)](LICENSE)
